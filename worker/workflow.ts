@@ -1,65 +1,58 @@
 import { WorkflowEntrypoint, WorkflowStep } from "cloudflare:workers";
 import type { WorkflowEvent } from "cloudflare:workers";
 
-/**
- * This workflow showcases:
- * - Durable step execution with step.do
- * - Time-based delays with step.sleep
- * - Interactive pausing with step.waitForEvent
- * - Data flow between steps
- *
- * @see https://developers.cloudflare.com/workflows
- */
-export class MyWorkflow extends WorkflowEntrypoint<
-	Env,
-	Record<string, unknown>
-> {
-	async run(event: WorkflowEvent<Record<string, unknown>>, step: WorkflowStep) {
-		const instanceId = event.instanceId;
+type YoutubeRelockPayload = {
+	minutes: number;
+	startedAt: number;
+};
 
-		// Notify Durable Object of step progress. Called outside step.do, so this
-		// operation may repeat. Safe here because updateStep is idempotent.
-		// Refer to: https://developers.cloudflare.com/workflows/build/rules-of-workflows/
-		const notifyStep = async (
-			stepName: string,
-			status: "running" | "completed" | "waiting",
-		) => {
-			try {
-				const doId = this.env.WORKFLOW_STATUS.idFromName(instanceId);
-				const stub = this.env.WORKFLOW_STATUS.get(doId);
-				await stub.updateStep(stepName, status);
-			} catch {
-				// Silently fail
-			}
-		};
+export class MyWorkflow extends WorkflowEntrypoint<Env, YoutubeRelockPayload> {
+	async run(event: WorkflowEvent<YoutubeRelockPayload>, step: WorkflowStep) {
+		const minutes = Number(event.payload.minutes);
 
-		// Step 1: Basic step - shows step.do usage
-		await notifyStep("process data", "running");
-		const result = await step.do("process data", async () => {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			return { processed: true, timestamp: Date.now() };
+		if (![15, 30, 60].includes(minutes)) {
+			throw new Error(`Invalid minutes: ${minutes}`);
+		}
+
+		await step.sleep(`wait-${minutes}-minutes`, `${minutes} minutes`);
+
+		await step.do("block-youtube-again", async () => {
+			await setYoutubeBlocked(this.env, true);
 		});
-		await notifyStep("process data", "completed");
-
-		// Step 2: Sleep step - shows step.sleep for delays
-		await notifyStep("wait 2 seconds", "running");
-		await step.sleep("wait 2 seconds", "2 seconds");
-		await notifyStep("wait 2 seconds", "completed");
-
-		// Step 3: Wait for event - shows interactive step.waitForEvent
-		await notifyStep("wait for approval", "waiting");
-		const approval = await step.waitForEvent("wait for approval", {
-			type: "user-approval",
-			timeout: "60 minutes",
-		});
-		await notifyStep("wait for approval", "completed");
-
-		// Step 4: Final step
-		await notifyStep("final", "running");
-		await step.do("final", async () => {
-			console.log("Results:", { result, approval: approval.payload });
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-		});
-		await notifyStep("final", "completed");
 	}
+}
+
+async function setYoutubeBlocked(env: Env, blocked: boolean): Promise<void> {
+	const profileId = getSecret(env, "NEXTDNS_PROFILE_ID");
+	const apiKey = getSecret(env, "NEXTDNS_API_KEY");
+
+	const endpoint =
+		`https://api.nextdns.io/profiles/${profileId}` +
+		`/parentalControl/services/youtube`;
+
+	const res = await fetch(endpoint, {
+		method: "PATCH",
+		headers: {
+			"X-Api-Key": apiKey,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			active: blocked,
+		}),
+	});
+
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`NextDNS API 실패: ${res.status} ${text}`);
+	}
+}
+
+function getSecret(env: Env, key: string): string {
+	const value = (env as unknown as Record<string, string | undefined>)[key];
+
+	if (!value) {
+		throw new Error(`${key} secret이 설정되지 않았습니다.`);
+	}
+
+	return value;
 }

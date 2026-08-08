@@ -98,6 +98,10 @@ function App() {
 		}
 	};
 
+	// --------------------------------------------------
+	// 즉시 다시 차단
+	// --------------------------------------------------
+
 	const lockNow = async () => {
 		const services = selectedServices();
 
@@ -146,6 +150,10 @@ function App() {
 			setLoading(false);
 		}
 	};
+
+	// --------------------------------------------------
+	// UI
+	// --------------------------------------------------
 
 	return (
 		<div style={styles.page}>
@@ -301,8 +309,10 @@ const styles: Record<string, CSSProperties> = {
 		padding: "24px 18px",
 		background: "#f5f5f7",
 		minHeight: "100vh",
+
 		boxSizing: "border-box",
 	},
+
 	card: {
 		background: "#ffffff",
 		borderRadius: "24px",
@@ -313,12 +323,19 @@ const styles: Record<string, CSSProperties> = {
 		fontSize: "36px",
 		textAlign: "center",
 	},
+
+	icon: {
+		fontSize: "36px",
+		textAlign: "center",
+	},
+
 	title: {
 		textAlign: "center",
 		fontSize: "28px",
 		marginTop: "10px",
 		marginBottom: "6px",
 	},
+
 	description: {
 		textAlign: "center",
 		color: "#666",
@@ -362,8 +379,58 @@ const styles: Record<string, CSSProperties> = {
 		width: "22px",
 		height: "22px",
 	},
+
+	service: {
+		display: "flex",
+
+		alignItems: "center",
+
+		justifyContent:
+			"space-between",
+
+		padding: "16px",
+
+		border:
+			"1px solid #dddddd",
+
+		borderRadius: "14px",
+
+		marginBottom: "10px",
+
+		cursor: "pointer",
+
+		fontSize: "18px",
+
+		background: "#ffffff",
+	},
+
+	serviceSelected: {
+		border:
+			"2px solid #111111",
+
+		background: "#fafafa",
+	},
+
+	serviceLeft: {
+		display: "flex",
+
+		alignItems: "center",
+
+		gap: "12px",
+	},
+
+	serviceIcon: {
+		fontSize: "24px",
+	},
+
+	checkbox: {
+		width: "22px",
+		height: "22px",
+	},
+
 	input: {
 		width: "100%",
+
 		fontSize: "22px",
 		padding: "15px",
 		boxSizing: "border-box",
@@ -371,24 +438,29 @@ const styles: Record<string, CSSProperties> = {
 		border: "1px solid #cccccc",
 		outline: "none",
 	},
+
 	button: {
 		width: "100%",
 		fontSize: "19px",
 		fontWeight: 600,
 		padding: "16px",
+
 		border: "none",
+
 		borderRadius: "14px",
 		margin: "6px 0",
 		background: "#111111",
 		color: "#ffffff",
 		cursor: "pointer",
 	},
+
 	secondaryButton: {
 		width: "100%",
 		fontSize: "17px",
 		fontWeight: 600,
 		padding: "15px",
 		border: "none",
+
 		borderRadius: "14px",
 		marginTop: "4px",
 		background: "#777777",

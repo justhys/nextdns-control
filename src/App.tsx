@@ -79,11 +79,11 @@ function App() {
 			const data = (await response.json()) as ApiResponse;
 
 			if (response.ok && data.ok !== false) {
+				setPin("");
 				showPopup(
 					true,
 					data.message ?? "정상적으로 적용되었습니다.",
 				);
-				setPin("");
 			} else {
 				showPopup(
 					false,
@@ -97,10 +97,6 @@ function App() {
 			setLoading(false);
 		}
 	};
-
-	// --------------------------------------------------
-	// 즉시 다시 차단
-	// --------------------------------------------------
 
 	const lockNow = async () => {
 		const services = selectedServices();
@@ -132,11 +128,11 @@ function App() {
 			const data = (await response.json()) as ApiResponse;
 
 			if (response.ok && data.ok !== false) {
+				setPin("");
 				showPopup(
 					true,
 					data.message ?? "정상적으로 차단했습니다.",
 				);
-				setPin("");
 			} else {
 				showPopup(
 					false,
@@ -151,18 +147,16 @@ function App() {
 		}
 	};
 
-	// --------------------------------------------------
-	// UI
-	// --------------------------------------------------
-
 	return (
 		<div style={styles.page}>
 			<div style={styles.card}>
-				<div style={styles.icon}>👨‍👩‍👧‍👦</div>
-				<h1 style={styles.title}>Family Control</h1>
-				<p style={styles.description}>
-					허용할 앱을 선택하고 시간을 선택하세요.
-				</p>
+				<div style={styles.header}>
+					<div style={styles.icon}>👨‍👩‍👧‍👦</div>
+					<h1 style={styles.title}>Family Control</h1>
+					<p style={styles.description}>
+						허용할 앱을 선택하고 시간을 선택하세요.
+					</p>
+				</div>
 
 				<div style={styles.section}>
 					<div style={styles.sectionTitle}>앱 선택</div>
@@ -222,29 +216,31 @@ function App() {
 				<div style={styles.section}>
 					<div style={styles.sectionTitle}>허용 시간</div>
 
-					<button
-						style={styles.button}
-						disabled={loading}
-						onClick={() => unlock(15)}
-					>
-						15분 허용
-					</button>
+					<div style={styles.timeButtons}>
+						<button
+							style={styles.button}
+							disabled={loading}
+							onClick={() => unlock(15)}
+						>
+							15분
+						</button>
 
-					<button
-						style={styles.button}
-						disabled={loading}
-						onClick={() => unlock(30)}
-					>
-						30분 허용
-					</button>
+						<button
+							style={styles.button}
+							disabled={loading}
+							onClick={() => unlock(30)}
+						>
+							30분
+						</button>
 
-					<button
-						style={styles.button}
-						disabled={loading}
-						onClick={() => unlock(60)}
-					>
-						60분 허용
-					</button>
+						<button
+							style={styles.button}
+							disabled={loading}
+							onClick={() => unlock(60)}
+						>
+							60분
+						</button>
+					</div>
 				</div>
 
 				<button
@@ -259,7 +255,7 @@ function App() {
 			{loading && (
 				<div style={styles.loadingOverlay}>
 					<div style={styles.loadingBox}>
-						<div style={styles.spinner}>⏳</div>
+						<div style={styles.loadingIcon}>⏳</div>
 						<div>적용 중...</div>
 					</div>
 				</div>
@@ -284,11 +280,7 @@ function App() {
 						</p>
 
 						<button
-							style={
-								popup.success
-									? styles.confirmButton
-									: styles.errorButton
-							}
+							style={styles.confirmButton}
 							onClick={closePopup}
 						>
 							확인
@@ -304,64 +296,63 @@ const styles: Record<string, CSSProperties> = {
 	page: {
 		fontFamily:
 			"-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-		maxWidth: "460px",
-		margin: "0 auto",
-		padding: "24px 18px",
+		width: "100%",
+		minHeight: "100dvh",
 		background: "#f5f5f7",
-		minHeight: "100vh",
-
 		boxSizing: "border-box",
+		padding: "12px",
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "flex-start",
 	},
-
 	card: {
+		width: "100%",
+		maxWidth: "430px",
 		background: "#ffffff",
 		borderRadius: "24px",
-		padding: "28px 22px",
-		boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+		padding: "18px",
+		boxSizing: "border-box",
+		boxShadow: "0 6px 24px rgba(0,0,0,0.08)",
+	},
+	header: {
+		textAlign: "center",
+		marginBottom: "14px",
 	},
 	icon: {
-		fontSize: "36px",
-		textAlign: "center",
-	},
-
-	icon: {
-		fontSize: "36px",
-		textAlign: "center",
-	},
-
-	title: {
-		textAlign: "center",
 		fontSize: "28px",
-		marginTop: "10px",
+		lineHeight: 1,
 		marginBottom: "6px",
 	},
-
+	title: {
+		fontSize: "26px",
+		margin: "0 0 4px 0",
+	},
 	description: {
-		textAlign: "center",
+		fontSize: "14px",
 		color: "#666",
-		fontSize: "15px",
-		marginBottom: "28px",
+		margin: 0,
 	},
 	section: {
-		marginBottom: "22px",
+		marginBottom: "14px",
 	},
 	sectionTitle: {
-		fontSize: "14px",
-		fontWeight: 600,
+		fontSize: "13px",
+		fontWeight: 700,
 		color: "#666",
-		marginBottom: "8px",
+		marginBottom: "6px",
 	},
 	service: {
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "space-between",
-		padding: "16px",
+		padding: "11px 14px",
 		border: "1px solid #dddddd",
-		borderRadius: "14px",
-		marginBottom: "10px",
+		borderRadius: "13px",
+		marginBottom: "7px",
 		cursor: "pointer",
-		fontSize: "18px",
+		fontSize: "17px",
 		background: "#ffffff",
+		boxSizing: "border-box",
 	},
 	serviceSelected: {
 		border: "2px solid #111111",
@@ -370,110 +361,55 @@ const styles: Record<string, CSSProperties> = {
 	serviceLeft: {
 		display: "flex",
 		alignItems: "center",
-		gap: "12px",
+		gap: "10px",
 	},
 	serviceIcon: {
-		fontSize: "24px",
+		fontSize: "21px",
 	},
 	checkbox: {
 		width: "22px",
 		height: "22px",
 	},
-
-	service: {
-		display: "flex",
-
-		alignItems: "center",
-
-		justifyContent:
-			"space-between",
-
-		padding: "16px",
-
-		border:
-			"1px solid #dddddd",
-
-		borderRadius: "14px",
-
-		marginBottom: "10px",
-
-		cursor: "pointer",
-
-		fontSize: "18px",
-
-		background: "#ffffff",
-	},
-
-	serviceSelected: {
-		border:
-			"2px solid #111111",
-
-		background: "#fafafa",
-	},
-
-	serviceLeft: {
-		display: "flex",
-
-		alignItems: "center",
-
-		gap: "12px",
-	},
-
-	serviceIcon: {
-		fontSize: "24px",
-	},
-
-	checkbox: {
-		width: "22px",
-		height: "22px",
-	},
-
 	input: {
 		width: "100%",
-
-		fontSize: "22px",
-		padding: "15px",
+		height: "52px",
+		fontSize: "20px",
+		padding: "0 14px",
 		boxSizing: "border-box",
-		borderRadius: "14px",
+		borderRadius: "13px",
 		border: "1px solid #cccccc",
 		outline: "none",
 	},
-
+	timeButtons: {
+		display: "grid",
+		gridTemplateColumns: "repeat(3, 1fr)",
+		gap: "8px",
+	},
 	button: {
-		width: "100%",
-		fontSize: "19px",
-		fontWeight: 600,
-		padding: "16px",
-
+		height: "52px",
+		fontSize: "17px",
+		fontWeight: 700,
 		border: "none",
-
-		borderRadius: "14px",
-		margin: "6px 0",
+		borderRadius: "13px",
 		background: "#111111",
 		color: "#ffffff",
 		cursor: "pointer",
 	},
-
 	secondaryButton: {
 		width: "100%",
-		fontSize: "17px",
-		fontWeight: 600,
-		padding: "15px",
+		height: "50px",
+		fontSize: "16px",
+		fontWeight: 700,
 		border: "none",
-
-		borderRadius: "14px",
-		marginTop: "4px",
-		background: "#777777",
+		borderRadius: "13px",
+		background: "#888888",
 		color: "#ffffff",
 		cursor: "pointer",
 	},
 	loadingOverlay: {
 		position: "fixed",
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		background: "rgba(0,0,0,0.25)",
+		inset: 0,
+		background: "rgba(0,0,0,0.28)",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
@@ -482,73 +418,59 @@ const styles: Record<string, CSSProperties> = {
 	loadingBox: {
 		background: "#ffffff",
 		borderRadius: "18px",
-		padding: "24px 34px",
-		boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+		padding: "20px 30px",
 		textAlign: "center",
-		fontSize: "17px",
-		fontWeight: 600,
+		fontSize: "16px",
+		fontWeight: 700,
+		boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
 	},
-	spinner: {
-		fontSize: "30px",
-		marginBottom: "8px",
+	loadingIcon: {
+		fontSize: "28px",
+		marginBottom: "6px",
 	},
 	modalOverlay: {
 		position: "fixed",
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
+		inset: 0,
 		background: "rgba(0,0,0,0.45)",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		padding: "24px",
+		padding: "20px",
 		zIndex: 1000,
 	},
 	modal: {
 		width: "100%",
-		maxWidth: "330px",
+		maxWidth: "320px",
 		background: "#ffffff",
-		borderRadius: "24px",
-		padding: "30px 24px 24px",
-		boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+		borderRadius: "22px",
+		padding: "26px 22px 20px",
+		boxSizing: "border-box",
 		textAlign: "center",
+		boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
 	},
 	modalIcon: {
-		fontSize: "48px",
-		marginBottom: "12px",
+		fontSize: "42px",
+		marginBottom: "8px",
 	},
 	modalTitle: {
-		fontSize: "23px",
-		margin: "0 0 12px 0",
+		fontSize: "22px",
+		margin: "0 0 8px 0",
 	},
 	modalMessage: {
-		fontSize: "17px",
+		fontSize: "16px",
 		lineHeight: 1.5,
 		color: "#555",
-		margin: "0 0 24px 0",
-		whiteSpace: "pre-wrap",
+		margin: "0 0 20px 0",
 	},
 	confirmButton: {
 		width: "100%",
+		height: "48px",
 		border: "none",
-		borderRadius: "14px",
-		padding: "15px",
-		fontSize: "18px",
-		fontWeight: 600,
-		color: "#ffffff",
+		borderRadius: "13px",
+		fontSize: "17px",
+		fontWeight: 700,
 		background: "#111111",
-		cursor: "pointer",
-	},
-	errorButton: {
-		width: "100%",
-		border: "none",
-		borderRadius: "14px",
-		padding: "15px",
-		fontSize: "18px",
-		fontWeight: 600,
 		color: "#ffffff",
-		background: "#555555",
 		cursor: "pointer",
 	},
 };

@@ -4,9 +4,11 @@ export { WorkflowStatusDO } from "./durable-object";
 type UnlockRequest = {
 	minutes?: number;
 	pin?: string;
+	services?: string[];
 };
 
 const ALLOWED_MINUTES = [15, 30, 60];
+const ALLOWED_SERVICES = ["youtube", "roblox"];
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
